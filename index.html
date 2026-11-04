@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10251d">
+  <title>ADR Agro Voice Assistant</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1511;--panel:#14231c;--line:#294237;--green:#55c58b;--muted:#a9bbb1;--white:#f2f7f3;--red:#ff8b82}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#1c3b2d 0,var(--bg) 55%);font:15px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--white);display:grid;place-items:center;padding:24px}
+    main{width:min(100%,680px);background:rgba(20,35,28,.96);border:1px solid var(--line);border-radius:22px;padding:clamp(22px,5vw,38px);box-shadow:0 24px 70px #0007}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}.mark{width:42px;height:42px;border-radius:13px;background:#1d5139;display:grid;place-items:center;color:#9cf0bd;font-weight:800;font-size:20px}
+    h1{font-size:clamp(22px,4vw,29px);margin:0} .sub{color:var(--muted);margin:4px 0 0;font-size:13px}
+    .status{display:flex;align-items:center;gap:9px;color:var(--muted);padding:12px 14px;background:#0d1b14;border:1px solid var(--line);border-radius:12px;margin:20px 0}
+    .dot{width:9px;height:9px;border-radius:50%;background:#82948a}.dot.live{background:var(--green);box-shadow:0 0 0 5px #55c58b22}
+    label{display:block;font-weight:650;margin:18px 0 8px}textarea{width:100%;min-height:190px;resize:vertical;background:#0c1712;color:var(--white);border:1px solid var(--line);border-radius:13px;padding:15px;font:15px/1.6 inherit;outline:none}textarea:focus{border-color:var(--green)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.btn{border:1px solid var(--line);border-radius:11px;padding:11px 16px;background:#20352a;color:var(--white);font-weight:650;cursor:pointer}.btn.primary{background:var(--green);border-color:var(--green);color:#092015}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .hint{color:var(--muted);font-size:12px;margin-top:16px}.error{color:var(--red)}.count{float:right;color:var(--muted);font-size:12px;font-weight:400}
+  </style>
+</head>
+<body>
+<main>
+  <div class="brand"><div class="mark">A</div><div><h1>ADR Agro Voice Assistant</h1><p class="sub">Perekam perintah suara untuk IT Activity Monitoring</p></div></div>
+  <div class="status" role="status" aria-live="polite"><span id="dot" class="dot"></span><span id="statusText">Siap. Tekan Mulai Bicara untuk memulai.</span></div>
+  <label for="transcript">Hasil pengenalan suara <span class="count" id="count">0 karakter</span></label>
+  <textarea id="transcript" placeholder="Hasil suara akan muncul di sini. Anda juga dapat mengedit teks secara manual."></textarea>
+  <div class="actions">
+    <button class="btn primary" id="startBtn">🎙 Mulai Bicara</button>
+    <button class="btn" id="stopBtn" disabled>■ Berhenti</button>
+    <button class="btn" id="sendBtn">Kirim ke Aplikasi</button>
+    <button class="btn" id="copyBtn">Salin Teks</button>
+  </div>
+  <p class="hint">Gunakan Google Chrome atau Microsoft Edge terbaru. Izinkan akses mikrofon saat diminta. Pastikan koneksi HTTPS aktif. Suara diproses oleh layanan pengenalan suara browser.</p>
+</main>
+<script>
+(() => {
+  const textArea = document.getElementById('transcript');
+  const statusText = document.getElementById('statusText');
+  const dot = document.getElementById('dot');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const count = document.getElementById('count');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let listening = false;
+  let finalText = '';
+
+  function status(message, live = false, error = false) {
+    statusText.textContent = message;
+    statusText.className = error ? 'error' : '';
+    dot.classList.toggle('live', live);
+  }
+  function updateCount(){ count.textContent = textArea.value.length + ' karakter'; }
+  textArea.addEventListener('input', updateCount);
+
+  if (!SpeechRecognition) {
+    status('Browser ini belum mendukung Speech Recognition. Gunakan Chrome atau Edge versi terbaru.', false, true);
+    startBtn.disabled = true;
+  }
+
+  function stopRecognition() {
+    if (recognition && listening) recognition.stop();
+    listening = false;
+    startBtn.disabled = !SpeechRecognition;
+    stopBtn.disabled = true;
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (!SpeechRecognition) return;
+    try {
+      finalText = textArea.value.trim();
+      recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.onstart = () => {
+        listening = true;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        status('Mendengarkan… silakan bicara.', true);
+      };
+      recognition.onresult = (event) => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const phrase = event.results[i][0].transcript;
+          if (event.results[i].isFinal) finalText += (finalText ? ' ' : '') + phrase.trim();
+          else interim += phrase;
+        }
+        textArea.value = [finalText, interim].filter(Boolean).join(' ').trim();
+        updateCount();
+      };
+      recognition.onerror = (event) => {
+        const messages = {
+          'not-allowed': 'Akses mikrofon ditolak. Izinkan mikrofon untuk situs GitHub Pages ini.',
+          'service-not-allowed': 'Layanan pengenalan suara tidak diizinkan oleh browser.',
+          'no-speech': 'Suara belum terdeteksi. Silakan coba bicara lebih dekat ke mikrofon.',
+          'audio-capture': 'Mikrofon tidak ditemukan atau sedang digunakan aplikasi lain.',
+          'network': 'Gangguan jaringan saat mengenali suara.'
+        };
+        status(messages[event.error] || ('Pengenalan suara gagal: ' + event.error), false, true);
+      };
+      recognition.onend = () => {
+        listening = false;
+        startBtn.disabled = !SpeechRecognition;
+        stopBtn.disabled = true;
+        if (!statusText.classList.contains('error')) status(textArea.value.trim() ? 'Perekaman selesai. Periksa teks, lalu kirim ke aplikasi.' : 'Perekaman berhenti. Silakan coba lagi.');
+      };
+      recognition.start();
+    } catch (err) {
+      status('Tidak dapat memulai mikrofon: ' + err.message, false, true);
+    }
+  });
+
+  stopBtn.addEventListener('click', stopRecognition);
+
+  sendBtn.addEventListener('click', () => {
+    const transcript = textArea.value.trim();
+    if (!transcript) { status('Belum ada teks untuk dikirim.', false, true); return; }
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage({ type: 'ADR_VOICE_TRANSCRIPT', transcript }, '*');
+      status('Transkrip dikirim ke tab aplikasi. Anda dapat kembali ke aplikasi untuk memprosesnya.');
+    } else {
+      status('Tab aplikasi tidak terhubung. Salin teks dan tempelkan ke kolom perintah suara di aplikasi.', false, true);
+    }
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!textArea.value.trim()) { status('Belum ada teks untuk disalin.', false, true); return; }
+    try {
+      await navigator.clipboard.writeText(textArea.value.trim());
+      status('Teks berhasil disalin. Tempelkan ke aplikasi.');
+    } catch {
+      textArea.select();
+      document.execCommand('copy');
+      status('Teks disalin. Tempelkan ke aplikasi.');
+    }
+  });
+})();
+</script>
+</body>
+</html>
