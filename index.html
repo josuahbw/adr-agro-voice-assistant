@@ -115,28 +115,70 @@
 
   stopBtn.addEventListener('click', stopRecognition);
 
-  sendBtn.addEventListener('click', () => {
-    const transcript = textArea.value.trim();
-    if (!transcript) { status('Belum ada teks untuk dikirim.', false, true); return; }
-    if (window.opener && !window.opener.closed) {
-      sendBtn.disabled = true;
-      status('Mengirim transkrip ke aplikasi dan memulai proses AI…');
 
-      // Kirim hanya ke halaman ADR Agro IT Activity Monitoring.
-      window.opener.postMessage(
-        { type: 'ADR_VOICE_TRANSCRIPT', transcript },
-        'https://script.google.com'
+sendBtn.addEventListener('click', () => {
+  const transcript = textArea.value.trim();
+
+  if (!transcript) {
+    status('Belum ada teks untuk dikirim.', false, true);
+    return;
+  }
+
+  if (!window.opener || window.opener.closed) {
+    status(
+      'Halaman aplikasi tidak terhubung. Buka Voice Assistant dari aplikasi ADR Agro.',
+      false,
+      true
+    );
+    return;
+  }
+
+  sendBtn.disabled = true;
+
+  status('Mengirim transkrip ke aplikasi ADR Agro...');
+
+  // Hapus listener ACK sebelumnya jika ada.
+  const ackHandler = (event) => {
+    if (event.source !== window.opener) return;
+    if (!event.data || event.data.type !== 'ADR_VOICE_ACK') return;
+
+    window.removeEventListener('message', ackHandler);
+
+    status('Transkrip diterima. Kembali ke aplikasi ADR Agro.');
+
+    try {
+      window.opener.focus();
+    } catch (e) {}
+
+    window.close();
+  };
+
+  window.addEventListener('message', ackHandler);
+
+  // Kirim pesan. Origin penerima diverifikasi di sisi Apps Script.
+  window.opener.postMessage(
+    {
+      type: 'ADR_VOICE_TRANSCRIPT',
+      transcript: transcript
+    },
+    '*'
+  );
+
+  // Jika tidak ada ACK, jangan tutup jendela.
+  setTimeout(() => {
+    window.removeEventListener('message', ackHandler);
+
+    if (!window.closed) {
+      sendBtn.disabled = false;
+      status(
+        'Aplikasi belum mengonfirmasi penerimaan transkrip. Silakan coba kirim kembali.',
+        false,
+        true
       );
-
-      // Tutup popup agar pengguna langsung kembali ke halaman aplikasi.
-      window.setTimeout(() => {
-        try { window.opener.focus(); } catch (e) {}
-        window.close();
-      }, 250);
-    } else {
-      status('Halaman aplikasi tidak terhubung. Buka Voice Assistant dari tombol di aplikasi Google Apps Script, lalu coba lagi.', false, true);
     }
-  });
+  }, 8000);
+});
+
 
   copyBtn.addEventListener('click', async () => {
     if (!textArea.value.trim()) { status('Belum ada teks untuk disalin.', false, true); return; }
