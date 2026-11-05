@@ -16,16 +16,11 @@
     label{display:block;font-weight:650;margin:18px 0 8px}textarea{width:100%;min-height:190px;resize:vertical;background:#0c1712;color:var(--white);border:1px solid var(--line);border-radius:13px;padding:15px;font:15px/1.6 inherit;outline:none}textarea:focus{border-color:var(--green)}
     .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.btn{border:1px solid var(--line);border-radius:11px;padding:11px 16px;background:#20352a;color:var(--white);font-weight:650;cursor:pointer}.btn.primary{background:var(--green);border-color:var(--green);color:#092015}.btn:disabled{opacity:.45;cursor:not-allowed}
     .hint{color:var(--muted);font-size:12px;margin-top:16px}.error{color:var(--red)}.count{float:right;color:var(--muted);font-size:12px;font-weight:400}
-    .guide{margin-top:22px;border:1px solid var(--line);border-radius:14px;background:#0d1b14;overflow:hidden}
-    .guide summary{padding:15px 17px;cursor:pointer;font-weight:700;color:#baf2ce}
-    .guide-content{padding:0 17px 17px;color:var(--muted);font-size:13px}
-    .guide-content h2{font-size:15px;color:var(--white);margin:18px 0 7px}
-    .guide-content h3{font-size:13px;color:#baf2ce;margin:15px 0 5px}
-    .guide-content ul,.guide-content ol{padding-left:20px;margin:7px 0}
-    .guide-content li{margin:5px 0}
-    .guide-content .example{white-space:normal;background:#14271d;border:1px solid #315442;border-radius:10px;padding:12px;color:#e6f4e9;margin:8px 0;line-height:1.65}
-    .guide-content strong{color:var(--white)}
-    .guide-content .note{border-left:3px solid var(--green);padding:8px 11px;background:#14271d;border-radius:0 8px 8px 0;margin:10px 0}
+    .quick-guide{margin:0 0 18px;padding:14px 16px;border:1px solid #315442;border-radius:13px;background:#10251b;color:var(--muted);font-size:13px}
+    .quick-guide h2{font-size:14px;color:#baf2ce;margin:0 0 8px}
+    .quick-guide p{margin:6px 0}
+    .quick-guide strong{color:var(--white)}
+    .quick-guide .sample{margin-top:9px;padding:10px 12px;border-radius:9px;background:#1a3024;color:#e6f4e9;line-height:1.6}
   </style>
 </head>
 <body>
@@ -41,62 +36,14 @@
     <button class="btn" id="copyBtn">Salin Teks</button>
   </div>
   <p class="hint">Gunakan Google Chrome atau Microsoft Edge terbaru. Izinkan akses mikrofon saat diminta. Pastikan koneksi HTTPS aktif. Suara diproses oleh layanan pengenalan suara browser.</p>
-  <details class="guide">
-    <summary>📋 Panduan berbicara agar data aktivitas terisi dengan tepat</summary>
-    <div class="guide-content">
-      <p>Gunakan panduan ini saat merekam suara. Sampaikan informasi secara berurutan, jelas, dan spesifik agar AI dapat memetakan ucapan ke setiap kolom formulir.</p>
-
-      <h2>1. Cara berbicara</h2>
-      <ol>
-        <li><strong>Satu aktivitas untuk satu perintah.</strong> Jangan mencampur beberapa pekerjaan dalam satu rekaman.</li>
-        <li><strong>Sebutkan nama site dengan jelas</strong> sesuai nama atau kode site yang tersedia di aplikasi.</li>
-        <li><strong>Sebutkan kategori sesuai pilihan di formulir.</strong> Hindari istilah singkatan yang tidak umum.</li>
-        <li><strong>Ucapkan prioritas dan status secara eksplisit</strong> jika sudah diketahui.</li>
-        <li><strong>Sebutkan nama PIC persis seperti terdaftar</strong> di aplikasi. Jika belum ditentukan, katakan “PIC belum ditentukan”.</li>
-        <li><strong>Gunakan tanggal lengkap</strong>, misalnya “10 November 2026”, bukan hanya “besok” atau “minggu depan”.</li>
-        <li><strong>Jelaskan masalah dan dampaknya</strong> dengan menyebut perangkat, lokasi, gejala, waktu kejadian, dan jumlah pengguna terdampak bila diketahui.</li>
-        <li><strong>Bedakan solusi dan pencegahan.</strong> Solusi adalah tindakan untuk menangani masalah saat ini; pencegahan adalah tindakan agar masalah tidak terulang.</li>
-        <li><strong>Jangan mengarang informasi.</strong> Jika site, PIC, tanggal, atau fakta lain belum diketahui, katakan belum diketahui atau biarkan AI menandainya untuk diperiksa.</li>
-      </ol>
-
-      <h2>2. Informasi yang perlu disebutkan untuk setiap kolom</h2>
-      <ul>
-        <li><strong>Site:</strong> lokasi pekerjaan, gunakan nama/kode site yang terdaftar.</li>
-        <li><strong>Kategori:</strong> jenis pekerjaan sesuai opsi kategori pada formulir.</li>
-        <li><strong>Priority:</strong> Low, Medium, High, atau Critical. Sebutkan tingkat dampak dan urgensinya agar prioritas dapat dinilai dengan benar.</li>
-        <li><strong>Status:</strong> Pending, In Progress, atau Completed, sesuai kondisi pekerjaan saat ini.</li>
-        <li><strong>PIC / Assigned To:</strong> nama teknisi yang bertanggung jawab. Jika lebih dari satu, sebutkan semua nama satu per satu.</li>
-        <li><strong>Title:</strong> ringkasan pekerjaan yang singkat dan spesifik.</li>
-        <li><strong>Description:</strong> kondisi awal, gejala, lokasi/perangkat, waktu kejadian, dan dampak pekerjaan.</li>
-        <li><strong>Due Date:</strong> target tanggal penyelesaian dengan tanggal, bulan, dan tahun.</li>
-        <li><strong>Solution:</strong> tindakan yang sudah dilakukan dan hasilnya. Jika belum ada tindakan, katakan belum dilakukan.</li>
-        <li><strong>Preventive:</strong> langkah pencegahan atau tindak lanjut agar masalah tidak terulang. Sebutkan tiap langkah secara terpisah.</li>
-      </ul>
-
-      <h2>3. Contoh perintah suara untuk membuat aktivitas baru</h2>
-      <div class="example">“Buat aktivitas baru. Site Jakarta HO. Kategori Network. Prioritas High. Status In Progress. PIC Andi Pratama. Judul gangguan koneksi Wi-Fi ruang meeting lantai dua. Deskripsi: enam pengguna tidak dapat terhubung ke jaringan ADR-STAFF sejak pukul sembilan pagi. Target selesai 10 November 2026. Solusi: access point sudah direstart dan koneksi kembali normal. Pencegahan: periksa kestabilan access point setiap hari dan pantau log koneksi.”</div>
-      <p class="note">Nama site, kategori, dan PIC pada contoh hanya ilustrasi. Saat digunakan, ganti dengan nama/kode yang benar-benar tersedia di aplikasi. Prioritas dan status harus menggambarkan kondisi sebenarnya.</p>
-
-      <h2>4. Contoh perintah suara untuk memperbarui aktivitas</h2>
-      <div class="example">“Perbarui aktivitas nomor IT-20261105-001. Ubah status menjadi Completed. Perbarui solusi menjadi: kabel LAN diganti dan koneksi sudah normal setelah diuji. Tambahkan tindakan pencegahan: lakukan pemeriksaan kondisi kabel LAN secara berkala.”</div>
-      <p>Untuk perintah <strong>UPDATE</strong>, sebutkan nomor/ID aktivitas jika tersedia dan ucapkan hanya kolom yang memang ingin diubah. Kolom lain tidak boleh ikut berubah.</p>
-
-      <h2>5. Contoh jika informasi belum lengkap</h2>
-      <div class="example">“Buat aktivitas baru. Site Palembang. Kategori Hardware. Judul pemeriksaan komputer tidak bisa menyala. Deskripsi: komputer di ruang administrasi tidak dapat dinyalakan. PIC belum ditentukan. Tanggal target belum ditentukan. Prioritas mohon direkomendasikan berdasarkan dampak masalah.”</div>
-      <p>Untuk CREATE, AI dapat memberikan rekomendasi pada kolom yang belum lengkap. Namun, AI tidak boleh menebak fakta seperti site, PIC, atau tanggal target. Periksa dan lengkapi hasil draft sebelum menyimpan.</p>
-
-      <h2>6. Periksa sebelum mengirim</h2>
-      <ul>
-        <li>Pastikan hasil transkrip sesuai dengan yang Anda ucapkan.</li>
-        <li>Periksa ejaan nama site, kategori, PIC, dan ID aktivitas.</li>
-        <li>Pastikan tanggal, prioritas, dan status sudah benar.</li>
-        <li>Pastikan solusi berisi tindakan yang benar-benar dilakukan, bukan rencana.</li>
-        <li>Pastikan tindakan pencegahan berisi langkah yang dapat dilakukan.</li>
-        <li>Periksa seluruh kolom pada draft AI sebelum menyimpan aktivitas.</li>
-      </ul>
-      <p class="note">Penting: hasil pengenalan suara dan AI adalah draft untuk membantu pengisian formulir, bukan persetujuan otomatis. Pengguna tetap bertanggung jawab memeriksa kebenaran data sebelum menyimpan.</p>
-    </div>
-  </details>
+  <section class="quick-guide" aria-label="Panduan berbicara">
+    <h2>🗣️ Tips agar AI mengisi formulir dengan tepat</h2>
+    <p>Bicaralah dengan jelas dan sebutkan informasi berikut secara berurutan:</p>
+    <p><strong>Site → Kategori → Prioritas → Status → PIC → Judul → Deskripsi → Target selesai → Solusi → Pencegahan.</strong></p>
+    <p>Gunakan nama site, kategori, dan PIC sesuai yang terdaftar. Sebutkan tanggal lengkap. Jika belum tahu, katakan “belum diketahui” — jangan menebak.</p>
+    <div class="sample"><strong>Contoh:</strong> “Buat aktivitas baru. Site Jakarta HO, kategori Network, prioritas High, status In Progress, PIC Andi. Judul gangguan Wi-Fi ruang meeting. Deskripsi enam pengguna tidak bisa terhubung sejak pukul sembilan. Target selesai 10 November 2026. Solusi access point sudah direstart. Pencegahan pantau koneksi setiap hari.”</div>
+    <p><strong>Untuk update:</strong> sebutkan ID aktivitas dan hanya bagian yang ingin diubah. Periksa kembali semua kolom sebelum menyimpan.</p>
+  </section>
 </main>
 <script>
 (() => {
