@@ -119,10 +119,22 @@
     const transcript = textArea.value.trim();
     if (!transcript) { status('Belum ada teks untuk dikirim.', false, true); return; }
     if (window.opener && !window.opener.closed) {
-      window.opener.postMessage({ type: 'ADR_VOICE_TRANSCRIPT', transcript }, '*');
-      status('Transkrip dikirim ke tab aplikasi. Anda dapat kembali ke aplikasi untuk memprosesnya.');
+      sendBtn.disabled = true;
+      status('Mengirim transkrip ke aplikasi dan memulai proses AI…');
+
+      // Kirim hanya ke halaman ADR Agro IT Activity Monitoring.
+      window.opener.postMessage(
+        { type: 'ADR_VOICE_TRANSCRIPT', transcript },
+        'https://script.google.com'
+      );
+
+      // Tutup popup agar pengguna langsung kembali ke halaman aplikasi.
+      window.setTimeout(() => {
+        try { window.opener.focus(); } catch (e) {}
+        window.close();
+      }, 250);
     } else {
-      status('Tab aplikasi tidak terhubung. Salin teks dan tempelkan ke kolom perintah suara di aplikasi.', false, true);
+      status('Halaman aplikasi tidak terhubung. Buka Voice Assistant dari tombol di aplikasi Google Apps Script, lalu coba lagi.', false, true);
     }
   });
 
